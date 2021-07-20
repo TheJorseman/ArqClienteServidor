@@ -18,6 +18,26 @@
 #define BACKLOG 10
 #define MAXDATASIZE 300
 
+char * insert(char* numcta, char* datos[] ){
+  return "Simon carnal";
+}
+
+char * _select(char* numcta){
+  return "Simon carnal";
+}
+
+void split(char* buf, char* datos[]){
+   char * token = strtok(buf, " ");
+   // loop through the string to extract all other tokens
+   int i = 0;
+   while( token != NULL ) {
+      printf( " %s\n", token ); //printing each token
+      datos[i] = strtok(NULL, " ");
+      i++;
+   }
+}
+
+
 //Se comprueba que no haya procesos hijos
 void sigchld_handler(int s){
   while(wait(NULL) > 0);
@@ -108,7 +128,7 @@ int main(int argc, char *argv[ ]){
     printf("Server: Got connection from %s\n", inet_ntoa(their_addr.sin_addr)); //Muestra la dirección del cliente
 
     /* this is the child process */
-    
+
     if(!fork()){
       /* child doesnt need the listener */
       close(sockfd); //Cierra el socket
@@ -120,8 +140,8 @@ int main(int argc, char *argv[ ]){
     else
       printf("Server-send is OK...!\n");
 
+    char datas[] = {"", "", "", "" , "", "", "", "", "" , ""};
     //Se comprueba lo que se esta recibiendo del cliente
-    printf("strcmp %d\n", strcmp(buf,"exit"));
     while(strcmp(buf,"exit") != 0){
       if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1){
         perror("recv()");
@@ -130,7 +150,11 @@ int main(int argc, char *argv[ ]){
       else
         printf("Server-The recv() is OK...\n");
       buf[numbytes] = '\0';
-      printf("Server-Received: %s\n", buf); //Muestra lo recibido por el server.
+      printf(">> %s\n", buf); //Muestra lo recibido por el server.
+      split(buf, datas);
+      char first =  datas[0];
+      printf(">> %s\n", first);
+
     }
 
     close(new_fd);
