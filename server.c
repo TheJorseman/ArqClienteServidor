@@ -17,7 +17,7 @@
 //Se define que se puede tener hasta 10 conexiones en cola
 #define BACKLOG 10
 #define MAXDATASIZE 300
-
+#define MAXSTR 256
 char * insert(char* numcta, char* datos[] ){
   return "Simon carnal";
 }
@@ -26,15 +26,23 @@ char * _select(char* numcta){
   return "Simon carnal";
 }
 
-void split(char* buf, char* datos[]){
+char ** split_str(char* buf){
+   char ** datas=(char **)malloc(sizeof(char *)*10);
    char * token = strtok(buf, " ");
    // loop through the string to extract all other tokens
    int i = 0;
+   for (i=0;i<10;i++){
+     datas[i]=(char *)malloc(sizeof(char)*MAXDATASIZE);
+   }
+   i=0;
    while( token != NULL ) {
-      printf( " %s\n", token ); //printing each token
-      datos[i] = strtok(NULL, " ");
+      //printf("Token %s\n", token ); //printing each token
+      strcpy(datas[i], token);
+      printf("Datas %s\n", datas[i]);
+      token = strtok(NULL, " ");
       i++;
    }
+   return datas;
 }
 
 
@@ -140,7 +148,7 @@ int main(int argc, char *argv[ ]){
     else
       printf("Server-send is OK...!\n");
 
-    char datas[] = {"", "", "", "" , "", "", "", "", "" , ""};
+    char ** datas;
     //Se comprueba lo que se esta recibiendo del cliente
     while(strcmp(buf,"exit") != 0){
       if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1){
@@ -151,9 +159,9 @@ int main(int argc, char *argv[ ]){
         printf("Server-The recv() is OK...\n");
       buf[numbytes] = '\0';
       printf(">> %s\n", buf); //Muestra lo recibido por el server.
-      split(buf, datas);
-      char first =  datas[0];
-      printf(">> %s\n", first);
+      datas = split_str(buf);
+      printf("Datas chido\n");
+      printf("%s\n", datas[0]);
 
     }
 
