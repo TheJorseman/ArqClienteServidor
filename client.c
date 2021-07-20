@@ -71,19 +71,17 @@ int main(int argc, char *argv[]){
         perror("Server-send() error lol!");
       }
       else
-        printf("Client-The send() is OK...\n");
-  /*
+        //printf("Client-The send() is OK...\n");
+
       //Se comprueba lo que se esta recibiendo del servidor
       if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1){
         perror("recv()");
         exit(1);
       }
-      else
-        printf("Client-The recv() is OK...\n");
-
-      buf[numbytes] = '\0';
-      printf("Client-Received: %s", buf); //Muestra lo recibido por el server.
-*/
+      else{
+        buf[numbytes] = '\0';
+        printf(">> %s\n", buf);
+      }
     }
   }
   printf("Client-Closing sockfd\n");

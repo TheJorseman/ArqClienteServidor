@@ -17,28 +17,91 @@
 //Se define que se puede tener hasta 10 conexiones en cola
 #define BACKLOG 10
 #define MAXDATASIZE 300
+#define NUMCTALEN 9
 #define MAXSTR 256
-char * insert(char* numcta, char* datos[] ){
-  return "Simon carnal";
+#define MAXARGS 10
+#define NARGSSHIT 2
+
+
+char * _insert(char* numcta, char** args, int nargs){
+  char * data_concat = (char *)malloc(sizeof(char)*MAXDATASIZE);
+  char * response = (char *)malloc(sizeof(char)*15);
+  FILE *archivo;
+  int i;
+  for (i=NARGSSHIT;i<NARGSSHIT+ nargs;i++){
+    strcat(data_concat, " ");
+    strcat(data_concat, args[i]);
+  }
+  archivo = fopen(numcta,"w+");
+  fputs(data_concat, archivo);
+  fclose(archivo);
+  strcpy(response, "Insert Exitoso\n");
+  return response;
 }
 
 char * _select(char* numcta){
-  return "Simon carnal";
+  char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
+  FILE *archivo;
+  archivo = fopen(numcta,"r");
+  if (archivo != NULL){
+    fgets(response, MAXDATASIZE, archivo);
+    fclose(archivo);
+  }
+  if (archivo == NULL){
+    strcpy(response, "El Registro no existe.\n");
+  }
+  return response;
 }
 
+char * lower_str(char* str) {
+  char * option = (char *)malloc(sizeof(char)*MAXDATASIZE);
+  for(int i = 0; str[i]; i++){
+    option[i] = tolower(str[i]);
+  }
+  return option;
+}
+
+int get_args_len(char **datas){
+  int j = 0;
+  for (int i=NARGSSHIT;i<MAXARGS;i++){
+    if (strcmp(datas[i],"") != 0){
+      j++;
+    }
+  }
+  return j;
+}
+
+char * handler(char **datas){
+  char * option = lower_str(datas[0]);
+  //char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
+  char * response;
+  char * numcta = (char *)malloc(sizeof(char)*NUMCTALEN);
+  int nargs = get_args_len(datas);
+
+  if (strcmp(option,"insert")==0){
+    response = _insert(datas[1], datas, nargs);
+  }else if (strcmp(option,"select")==0){
+    response = _select(datas[1]);
+  }else{
+    strcpy(response, "Comando no encontrado");
+  }
+  return response;
+
+}
+
+
 char ** split_str(char* buf){
-   char ** datas=(char **)malloc(sizeof(char *)*10);
+   char ** datas=(char **)malloc(sizeof(char *)*MAXARGS);
    char * token = strtok(buf, " ");
    // loop through the string to extract all other tokens
    int i = 0;
-   for (i=0;i<10;i++){
+   for (i=0;i<MAXARGS;i++){
      datas[i]=(char *)malloc(sizeof(char)*MAXDATASIZE);
    }
    i=0;
    while( token != NULL ) {
       //printf("Token %s\n", token ); //printing each token
       strcpy(datas[i], token);
-      printf("Datas %s\n", datas[i]);
       token = strtok(NULL, " ");
       i++;
    }
@@ -137,19 +200,22 @@ int main(int argc, char *argv[ ]){
 
     /* this is the child process */
 
+    /*
     if(!fork()){
-      /* child doesnt need the listener */
       close(sockfd); //Cierra el socket
-      if(send(new_fd, "This is a test string from server!\n", 37, 0) == -1) //Es lo que se le envia al cliente
+      if(send(new_fd, "\n", 1, 0) == -1) //Es lo que se le envia al cliente
         perror("Server-send() error lol!");
       close(new_fd);
       exit(0);
     }
     else
-      printf("Server-send is OK...!\n");
+      printf("\n");
+    */
 
     char ** datas;
+    char * response;
     //Se comprueba lo que se esta recibiendo del cliente
+    char * buf_v;
     while(strcmp(buf,"exit") != 0){
       if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1){
         perror("recv()");
@@ -159,15 +225,22 @@ int main(int argc, char *argv[ ]){
         printf("Server-The recv() is OK...\n");
       buf[numbytes] = '\0';
       printf(">> %s\n", buf); //Muestra lo recibido por el server.
+      buf_v = lower_str(buf);
+      if (strcmp(buf_v, "exit") == 0){
+        break;
+      }
       datas = split_str(buf);
-      printf("Datas chido\n");
-      printf("%s\n", datas[0]);
-
+      response = handler(datas);
+      if(send(new_fd, response, strlen(response), 0) == -1){
+        perror("send()");
+      }else{
+        printf("Respuesta enviada: %s\n", response);
+      }
     }
-
+    //close(sockfd); 
     close(new_fd);
     printf("Server-new socket, new_fd closed successfully...\n");
-    
+    //exit(0);
     /* parent doesnt need this */
 
   }
