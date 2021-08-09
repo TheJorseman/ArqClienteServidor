@@ -20,15 +20,17 @@
 #define NUMCTALEN 9
 #define MAXSTR 256
 #define MAXARGS 10
-#define NARGSSHIT 2
+#define NARGSSHIFT 2
 
-
+//Función para insertar un registro
+//_insert(numero de cuenta, argumentos (nombre completo), numero de argumentos)
+//Regresa un apuntador char con la respuesta
 char * _insert(char* numcta, char** args, int nargs){
   char * data_concat = (char *)malloc(sizeof(char)*MAXDATASIZE);
   char * response = (char *)malloc(sizeof(char)*15);
   FILE *archivo;
   int i;
-  for (i=NARGSSHIT;i<NARGSSHIT+ nargs;i++){
+  for (i=NARGSSHIFT;i<NARGSSHIFT+ nargs;i++){
     strcat(data_concat, " ");
     strcat(data_concat, args[i]);
   }
@@ -39,6 +41,9 @@ char * _insert(char* numcta, char** args, int nargs){
   return response;
 }
 
+//Función para consultar un registro
+//_select(numero de cuenta)
+//Regresa un apuntador char con la respuesta
 char * _select(char* numcta){
   char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
   FILE *archivo;
@@ -53,6 +58,9 @@ char * _select(char* numcta){
   return response;
 }
 
+//Función para eliminar un registro
+//_delete(numero de cuenta)
+//Regresa apuntador char con respuesta
 char * _delete(char* numcta){
   char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
   if (remove(numcta) != 0){
@@ -62,6 +70,14 @@ char * _delete(char* numcta){
   return response;
 }
 
+char * _help(){
+	char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
+	strcpy(response, "Se admiten los siguientes comandos:\ninsert numero_de_cuenta nombre(s) apellidos\nselect numero_de_cuenta\ndelete numero_de_cuenta\nexit");
+}
+
+//Función para convertir los caracteres de una cadena a minúsculas
+//lower_str(cadena a convertir)
+//Regresa un apuntador char a la nueva cadena
 char * lower_str(char* str) {
   char * option = (char *)malloc(sizeof(char)*MAXDATASIZE);
   for(int i = 0; str[i]; i++){
@@ -70,9 +86,12 @@ char * lower_str(char* str) {
   return option;
 }
 
+//Función para obtener el número de argumentos
+//get_args_len(arreglo de cadenas)
+//Devuelve el número de argumentos
 int get_args_len(char **datas){
   int j = 0;
-  for (int i=NARGSSHIT;i<MAXARGS;i++){
+  for (int i=NARGSSHIFT;i<MAXARGS;i++){
     if (strcmp(datas[i],"") != 0){
       j++;
     }
@@ -80,6 +99,9 @@ int get_args_len(char **datas){
   return j;
 }
 
+//Función para llevar el control de las instrucciones
+//handler(arreglo de strings)
+//Devuelve la respuesta según la acción ejecutada 
 char * handler(char **datas){
   char * option = lower_str(datas[0]);
   //char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
@@ -93,6 +115,8 @@ char * handler(char **datas){
     response = _select(datas[1]);
   }else if (strcmp(option,"delete")==0){
     response = _delete(datas[1]);
+  }else if (strcmp(option,"help")==0){
+    response = _help();
   }else{
     strcpy(response, "Comando no encontrado");
   }
@@ -100,18 +124,18 @@ char * handler(char **datas){
 
 }
 
-
+//Función para hacer el spĺit de la cadena recibida
+//split_str(cadena ingresada por usuario)
+//Devuelve un arreglo de cadenas
 char ** split_str(char* buf){
    char ** datas=(char **)malloc(sizeof(char *)*MAXARGS);
    char * token = strtok(buf, " ");
-   // loop through the string to extract all other tokens
    int i = 0;
    for (i=0;i<MAXARGS;i++){
      datas[i]=(char *)malloc(sizeof(char)*MAXDATASIZE);
    }
    i=0;
    while( token != NULL ) {
-      //printf("Token %s\n", token ); //printing each token
       strcpy(datas[i], token);
       token = strtok(NULL, " ");
       i++;
@@ -124,6 +148,8 @@ char ** split_str(char* buf){
 void sigchld_handler(int s){
   while(wait(NULL) > 0);
 }
+
+
 
 //Función principal
 int main(int argc, char *argv[ ]){
@@ -227,6 +253,7 @@ int main(int argc, char *argv[ ]){
     char * response;
     //Se comprueba lo que se esta recibiendo del cliente
     char * buf_v;
+	//se compara si se recibe un exit, palabra clave para la desconexión
     while(strcmp(buf,"exit") != 0){
       if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1){
         perror("recv()");
@@ -251,7 +278,6 @@ int main(int argc, char *argv[ ]){
     //close(sockfd);
 	strcpy(buf,"NonxD");
     close(new_fd);
-	printf("%s",buf);
     printf("Server-new socket, new_fd closed successfully...\n");
     //exit(0);
     /* parent doesnt need this */
