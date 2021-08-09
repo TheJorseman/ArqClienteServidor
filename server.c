@@ -53,6 +53,15 @@ char * _select(char* numcta){
   return response;
 }
 
+char * _delete(char* numcta){
+  char * response = (char *)malloc(sizeof(char)*MAXDATASIZE);
+  if (remove(numcta) != 0){
+    strcpy(response, "El Registro no existe.\n");
+  }else
+    strcpy(response, "Se elimino el Registro.");
+  return response;
+}
+
 char * lower_str(char* str) {
   char * option = (char *)malloc(sizeof(char)*MAXDATASIZE);
   for(int i = 0; str[i]; i++){
@@ -82,6 +91,8 @@ char * handler(char **datas){
     response = _insert(datas[1], datas, nargs);
   }else if (strcmp(option,"select")==0){
     response = _select(datas[1]);
+  }else if (strcmp(option,"delete")==0){
+    response = _delete(datas[1]);
   }else{
     strcpy(response, "Comando no encontrado");
   }
@@ -237,11 +248,15 @@ int main(int argc, char *argv[ ]){
         printf("Respuesta enviada: %s\n", response);
       }
     }
-    //close(sockfd); 
+    //close(sockfd);
+	/*free(datas);
+	free(response);
+	free(buf_v);*/
     close(new_fd);
     printf("Server-new socket, new_fd closed successfully...\n");
     //exit(0);
     /* parent doesnt need this */
+	
 
   }
   return 0;
