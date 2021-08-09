@@ -249,10 +249,9 @@ int main(int argc, char *argv[ ]){
       }
     }
     //close(sockfd);
-	/*free(datas);
-	free(response);
-	free(buf_v);*/
+	strcpy(buf,"NonxD");
     close(new_fd);
+	printf("%s",buf);
     printf("Server-new socket, new_fd closed successfully...\n");
     //exit(0);
     /* parent doesnt need this */
