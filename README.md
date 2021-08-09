@@ -1,4 +1,4 @@
-# Proyecto Arquitectura ClienteServidor
+# Proyecto Arquitectura Cliente Servidor
 
 ## Objetivo
 
