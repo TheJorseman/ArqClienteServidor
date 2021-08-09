@@ -235,20 +235,6 @@ int main(int argc, char *argv[ ]){
     printf("Server-new socket, new_fd is OK...\n");
     printf("Server: Got connection from %s\n", inet_ntoa(their_addr.sin_addr)); //Muestra la dirección del cliente
 
-    /* this is the child process */
-
-    /*
-    if(!fork()){
-      close(sockfd); //Cierra el socket
-      if(send(new_fd, "\n", 1, 0) == -1) //Es lo que se le envia al cliente
-        perror("Server-send() error lol!");
-      close(new_fd);
-      exit(0);
-    }
-    else
-      printf("\n");
-    */
-
     char ** datas;
     char * response;
     //Se comprueba lo que se esta recibiendo del cliente
@@ -263,11 +249,15 @@ int main(int argc, char *argv[ ]){
         printf("Server-The recv() is OK...\n");
       buf[numbytes] = '\0';
       printf(">> %s\n", buf); //Muestra lo recibido por el server.
-      buf_v = lower_str(buf);
+      //Se convierte a minúsculas el texto recibido
+	  buf_v = lower_str(buf);
+	  //Se compara el comando para ver si coincide con exit
       if (strcmp(buf_v, "exit") == 0){
         break;
       }
+	  //arreglo de strings separados por espacios
       datas = split_str(buf);
+	  //se manda al handler para ejecutar una acción
       response = handler(datas);
       if(send(new_fd, response, strlen(response), 0) == -1){
         perror("send()");
@@ -275,13 +265,10 @@ int main(int argc, char *argv[ ]){
         printf("Respuesta enviada: %s\n", response);
       }
     }
-    //close(sockfd);
-	strcpy(buf,"NonxD");
+	//para que termine la ejecución al hacer una nueva conexión
+	strcpy(buf,"NonexD");
     close(new_fd);
     printf("Server-new socket, new_fd closed successfully...\n");
-    //exit(0);
-    /* parent doesnt need this */
-	
 
   }
   return 0;
